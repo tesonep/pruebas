@@ -1,0 +1,1 @@
+data Grid = Grid { io::IO (), state::Integer}
