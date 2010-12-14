@@ -1,5 +1,6 @@
 import List
 import Debug.Trace
+import Data.List
 
 primes = 2: 3: sieve (tail primes) 3 []
    where
@@ -70,3 +71,65 @@ maxDiagonal2 = foldl1 max (map product (filter (\x -> x /= []) [ diagL4 horizont
 
 maxs = max (max maxVertical maxHorizontal) (max maxDiagonal2 maxDiagonal)
 
+
+triangles = triangles' 1 0
+   where triangles' n a = (a+n) : (triangles' (n+1) (a+n))
+
+factorizar n = (factorizar' n primes)
+
+factorizar' 1 _  = []
+factorizar' n ps = if resto == 0 then divisor:(factorizar' r primes) else (factorizar' n (tail ps))
+         where divisor = head ps 
+               r = div n divisor 
+               resto = mod n divisor
+
+factores n = (n, length (group (sort(subsequences (factorizar n)))))
+
+serie 1 = [1]
+serie n = if even n then n:(serie (div n 2)) else n:(serie (3*n + 1))
+
+paths size = paths' size 1 1
+
+paths' size x y = (right size x y) + (down size x y)
+
+right size x y = if x < size  then (paths' size (x+1) y) else 1
+down  size x y = if y < size  then (paths' size x (y+1)) else 1
+
+value _ 0 = 1
+value r c = (value r (c-1)) * (((r+1) - c) / c)::Rational
+
+letras 0 = ""
+letras 1 = "one"
+letras 2 = "two"
+letras 3 = "three"
+letras 4 = "four"
+letras 5 = "five"
+letras 6 = "six"
+letras 7 = "seven"
+letras 8 = "eight"
+letras 9 = "nine"
+letras 10 = "ten"
+letras 11 = "eleven"
+letras 12 = "twelve"
+letras 13 = "thirteen"
+letras 14 = "fourteen"
+letras 15 = "fifteen"
+letras 16 = "sixteen"
+letras 17 = "seventeen"
+letras 18 = "eighteen"
+letras 19 = "nineteen"
+
+letras 20 = "twenty"
+letras 30 = "thirty"
+letras 40 = "forty"
+letras 50 = "fifty"
+letras 60 = "sixty"
+letras 70 = "seventy"
+letras 80 = "eighty"
+letras 90 = "ninety"
+
+letras   x  = (if x > 999 then letrasMiles x else "") ++ (if (mod x 1000) > 99 then letrasCientos (mod x 1000) else "") ++ (letrasDieces (mod x 100))
+
+letrasMiles   x  =  letras (div x 1000) ++ "thousand" ++ (if (mod x 1000) /= 0 then "and" else "")
+letrasCientos x  =  letras (div x 100) ++ "hundred" ++ (if (mod x 100) /= 0 then "and" else "")
+letrasDieces  x  =  if x <= 19 then letras x else letras ((div x 10)*10) ++ letras (mod x 10)
