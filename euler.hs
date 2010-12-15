@@ -1,6 +1,7 @@
 import List
 import Debug.Trace
 import Data.List
+import Char
 
 primes = 2: 3: sieve (tail primes) 3 []
    where
@@ -134,4 +135,89 @@ letrasMiles   x  =  letras (div x 1000) ++ "thousand" ++ (if (mod x 1000) /= 0 t
 letrasCientos x  =  letras (div x 100) ++ "hundred" ++ (if (mod x 100) /= 0 then "and" else "")
 letrasDieces  x  =  if x <= 19 then letras x else letras ((div x 10)*10) ++ letras (mod x 10)
 
+triangulo = [[75],[95,64],[17,47,82],[18,35,87,10],[20,04,82,47,65],[19,01,23,75,03,34],[88,02,77,73,07,63,67],[99,65,04,28,06,16,70,92],[41,41,26,56,83,40,80,70,33],[41,48,72,33,47,32,37,16,94,29],[53,71,44,65,25,43,91,52,97,51,14],[70,11,33,28,77,73,17,78,39,68,17,57],[91,71,52,38,17,14,91,43,58,50,27,29,48],[63,66,04,68,89,53,67,30,73,16,69,87,40,31],[04,62,98,27,23,09,70,98,73,93,38,53,60,04,23]]
+
+adyacentes pos = (pos, pos+1)
+
+replace pos x xs = (take pos xs) ++ x:(drop (pos+1) xs)
+
+sumMax a b c = a + (max b c)
+
+calcLinea arriba abajo = calcLinea' abajo arriba 0
+
+calcLinea' abajo [] pos = []
+calcLinea' abajo (x:xs) pos = (calcLinea'' abajo x (adyacentes pos)) : (calcLinea' abajo xs (pos+1))
+
+calcLinea'' abajo x (p1,p2) = sumMax x (abajo!!p1) (abajo!!p2)
+
+calcT t = foldr1 calcLinea t
+
+data DiaSemana = Dom | Lun | Mar | Mie | Jue | Vie | Sab deriving (Show,Enum, Eq)
+
+proximoDiaSemana Sab = Dom
+proximoDiaSemana x = succ x
+
+lDiasMes = [31,28,31,30,31,30,31,31,30,31,30,31]
+
+esBiciesto anio = (mod anio 4 == 0  && mod anio 100 /= 0) || (mod anio 400 == 0)
+
+diasMes mes anio
+      | mes == 2 && (esBiciesto anio) = 29
+      | otherwise = lDiasMes!!(mes-1)	
+       
+newtype Dia = Dia (Int,Int,Int,DiaSemana) deriving (Show, Eq)
+
+getDiaSemana (Dia (dia,mes,anio,diaSemana)) = diaSemana
+
+getDia (Dia (dia,mes,anio,diaSemana)) = dia
+
+instance Enum Dia where
+    succ = proximoDia
+    fromEnum (Dia (dia,mes,anio,diaSemana)) = anio*100000 + mes*1000 + dia*10 + (fromEnum diaSemana)
+    toEnum val = Dia (anio,mes,dia,diaSemana)
+      where anio = div val 100000
+            mes  = div (mod val 100000) 1000
+            dia  = div (mod val 1000) 10
+            diaSemana = toEnum (mod (mod val 10) 7)
+
+proximoDia (Dia (dia,mes,anio,diaSemana)) = Dia (pDia, pMes, pAnio, (proximoDiaSemana diaSemana))
+     where 
+          ultimoDiaMes = diasMes mes anio
+          pDia = if ultimoDiaMes == dia then 1 else dia+1
+          pMes = if ultimoDiaMes == dia then (if mes == 12 then 1 else mes+1) else mes
+          pAnio = if ultimoDiaMes == dia && mes==12 then anio+1 else anio
+
+
+desde x = x:(desde (succ x))
+
+hasta (x:xs) y = if x == y then [x] else x:(hasta xs y)
+
+contarDomingosPrimeroMes [] n = n
+contarDomingosPrimeroMes (x:xs) n = contarDomingosPrimeroMes xs nn
+             where nn = if getDiaSemana x == Dom && getDia x == 1 then n+1 else n 
+
+
+divisores n = filter (/= n) (map head (group (sort(map product (subsequences (factorizar n))))))
+
+amiguin n = sum (divisores n)
+
+esAmigable n = if a/= n then amiguin (a) == n else False
+      where a = amiguin n
+
+problem22 = do 
+               nombres <- (readFile "names.txt")
+               return (valoresNombre (sort (words nombres)))
+
+valoresNombre xs = valoresNombre' xs 1
+       where valoresNombre' (x:xs) n = (calcValorNombre x n) + (valoresNombre' xs (n+1))
+             valoresNombre' [] _ = 0
+
+calcValorNombre nombre n = (sumaLetras nombre )* n
+       where sumaLetras (x:xs) = (valorLetra x) + (sumaLetras xs)
+             sumaLetras []     = 0
+             valorLetra l      = (ord l) - (ord 'A') + 1 
+
+esAbundante n = sum (divisores n) > n
+
+abundantes = filter esAbundante [1..]
 
