@@ -133,3 +133,5 @@ letras   x  = (if x > 999 then letrasMiles x else "") ++ (if (mod x 1000) > 99 t
 letrasMiles   x  =  letras (div x 1000) ++ "thousand" ++ (if (mod x 1000) /= 0 then "and" else "")
 letrasCientos x  =  letras (div x 100) ++ "hundred" ++ (if (mod x 100) /= 0 then "and" else "")
 letrasDieces  x  =  if x <= 19 then letras x else letras ((div x 10)*10) ++ letras (mod x 10)
+
+
