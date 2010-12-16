@@ -221,6 +221,9 @@ esAbundante n = sum (divisores n) > n
 
 abundantes = filter esAbundante [1..]
 
-esSumaAbundates n = esSumaAbundantes' abundantes n
-      where esSumaAbundantes' (x:xs) n = if n-x > 0 then (if esAbundante (n-x) then [n] else esSumaAbundantes' xs n) else []
+esNoSumaAbundates n = esNoSumaAbundantes' abundantes n
+      where esNoSumaAbundantes' (x:xs) n 
+	              | n - x <= 0 = [n]
+				  | esAbundante (n - x) = []
+				  | otherwise = esNoSumaAbundantes' xs n
 
