@@ -221,9 +221,31 @@ esAbundante n = sum (divisores n) > n
 
 abundantes = filter esAbundante [1..]
 
-esNoSumaAbundates n = esNoSumaAbundantes' abundantes n
-      where esNoSumaAbundantes' (x:xs) n 
-	              | n - x <= 0 = [n]
-				  | esAbundante (n - x) = []
-				  | otherwise = esNoSumaAbundantes' xs n
+abundantesHasta n = ah n abundantes
+        where ah n (x:xs) = if x <= n then x:(ah n xs) else []
 
+sumaNoAbundantes = sum [1..28000] - sumaParesMayor48 - sum (esSumaAbundantes [1..47]) - sum (map head $ group $ sort armarSumaAbundantes)
+
+esSumaAbundantes xs = sort (g xs)	
+        where g [] = []
+              g (x:xs) = (f' x (abundantesHasta x)) ++ (esSumaAbundantes xs)
+              f' x [] = []
+              f' x (y:ys) = if x - y <= 0 then [] else (if esAbundante (x-y) then [x] else (f' x ys))
+
+sumaParesMayor48 = sum [ x | x <- [48..28000], mod x 2 == 0]
+
+armarSumaAbundantes = asa $ abundantesHasta 28000
+asa [] = []
+asa (x:xs) = asa' x ++ asa xs
+asa' x = if mod x 2 == 0 then asa2 x (abundantesHasta 28000) else []
+asa2 x [] = []
+asa2 x (y:ys) = if x+y >= 28000 then [] else (if mod y 2 == 1 then (x+y):(asa2 x ys) else asa2 x ys)
+
+
+division n d = div' (mod n d) d 
+     where div' 0 d = []
+           div' r d = (div (r*10) d):(div' (mod (r*10) d) d)
+
+divisionCiclo n d = div' (mod n d) d [mod n d]
+     where div' 0 _ _ = []
+           div' r d restos = if last restos == (mod (r*10) d) then [div (r*10) d]  else (div (r*10) d):(div' (mod (r*10) d) d (restos ++ [(mod (r*10) d)]))
