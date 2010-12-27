@@ -249,3 +249,5 @@ division n d = div' (mod n d) d
 divisionCiclo n d = div' (mod n d) d [mod n d]
      where div' 0 _ _ = []
            div' r d restos = if last restos == (mod (r*10) d) then [div (r*10) d]  else (div (r*10) d):(div' (mod (r*10) d) d (restos ++ [(mod (r*10) d)]))
+
+
