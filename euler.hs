@@ -2,6 +2,7 @@ import List
 import Debug.Trace
 import Data.List
 import Char
+import Data.Maybe
 
 primes = 2: 3: sieve (tail primes) 3 []
    where
@@ -246,8 +247,38 @@ division n d = div' (mod n d) d
      where div' 0 d = []
            div' r d = (div (r*10) d):(div' (mod (r*10) d) d)
 
-divisionCiclo n d = div' (mod n d) d [mod n d]
-     where div' 0 _ _ = []
-           div' r d restos = if last restos == (mod (r*10) d) then [div (r*10) d]  else (div (r*10) d):(div' (mod (r*10) d) d (restos ++ [(mod (r*10) d)]))
+divisionCiclo n d = let (a,b) = div' (mod n d) d [mod n d] in (d,a,b)
+     where div' 0 _ _ = ([],-1)
+           div' r d restos = if elem (mod (r*10) d) restos 
+		                     then ([div (r*10) d], fromJust	$ elemIndex (mod (r*10) d) restos )
+							 else 
+							  let (a,b) = (div' (mod (r*10) d) d (restos ++ [(mod (r*10) d)])) in ((div (r*10) d):a,b)
+		   
+problem26 = map f $ filter (\(d,a,b) -> b /= (-1)) $  map (divisionCiclo 1) [1..1000]
+     where f (d,a,b) = (d, length (drop b a))
+	 
+max' (a,b) (x,y) = if b > y then (a,b) else (x,y)
 
+esPrimo p = p > 1 && (all (\n -> p `mod` n /= 0 ) $ takeWhile (\n -> n*n <= p) [2..])
+
+cantidadDePrimosEnCuadratica a b = f' a b (-1)
+     where f' a b n = if esPrimo ( (n+1)^2 + a*(n+1) + b) then f' a b (n+1) else (n+1)
+	 
+problem27 = foldl1 f' $ filter (\(a,b,c)-> c > 1) [(x,y, cantidadDePrimosEnCuadratica x y) | x <- [-999..999], y<- [0..999], esPrimo (abs y)]
+     where f' (a,b,c) (x,y,z) = if c > z then (a,b,c) else (x,y,z)
+
+vuelta n neAnterior = se:sw:nw:ne:[]
+       where se = neAnterior + (2*n);
+	         sw = se + (2*n);
+			 nw = sw + (2*n);
+			 ne = nw + (2*n);
+			 
+p28 = p28' 1 [1]
+
+p28' 501 ds = ds
+p28' n ds = p28' (n+1) $ ds ++ (vuelta n (last ds))
+
+p30  =  filter f' p30'
+  where f' xs = (sum $ map (^5) xs) == ((read $ map intToDigit xs)::Int)
+p30' = [a:b:c:d:e:f:[]| a <- [0..9], b <-[0..9], c <-[0..9], d <-[0..9], e <-[0..9], f <-[0..9]]
 
