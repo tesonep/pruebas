@@ -282,3 +282,8 @@ p30  =  filter f' p30'
   where f' xs = (sum $ map (^5) xs) == ((read $ map intToDigit xs)::Int)
 p30' = [a:b:c:d:e:f:[]| a <- [0..9], b <-[0..9], c <-[0..9], d <-[0..9], e <-[0..9], f <-[0..9]]
 
+
+p31_coins = [1,2,5,10,20,50,100,200]
+p31_posibles 0 = []
+p31_posibles n = filter (<=n) p31_coins
+
