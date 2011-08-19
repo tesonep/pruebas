@@ -39,7 +39,7 @@ object = ObjectDef
 
 data ClassDef = ClassDef{superClass::Maybe ClassDef,
                          className::String,
-                         attributes::[String],
+                         attributes::[Attribute],
                          methods::[Method]}
                          deriving Show
 
@@ -57,6 +57,12 @@ instance Show Method where
                         returnValue' = show $ returnValue sig
 
 type MethodBody = ObjectDef -> World (Maybe ObjectDef)
+
+data Attribute = Attribute {attributeName::String,
+                            attributeType::Type} deriving Show
+
+data AttributeDef = AttributeDef {attribute::Attribute,
+                                  attributeValue::ObjectDef } deriving Show
 
 type Type = [MethodSignature]
 
@@ -108,29 +114,14 @@ newObject' classDef objectMap classMap = do
 
 {- Base Classes -}
 
-toStringMethod = Method {
-                    methodSignature = MethodSignature { methodName = "toString",
-                                                        parameters = [],
-                                                        returnValue = emptyType},
-                    methodBody = toStringBody}
-
-toStringBody _ = do return Nothing
-
-
 objectClass = ClassDef {
                     superClass=Nothing,
                     className = "Object",
                     attributes = [],
-                    methods = [toStringMethod]}
+                    methods = []}
 
-string_toStringMethod = Method {
-                    methodSignature = methodSignature $ toStringMethod,
-                    methodBody = string_toStringBody}
-
-string_toStringBody x = do return $ Just x
-
-stringClass = ClassDef {
-                    superClass= Just objectClass,
-                    className = "String",
+integerClass = ClassDef {
+                    superClass = Just objectClass,
+                    className = "Integer",
                     attributes = [],
-                    methods = [string_toStringMethod]}
+                    methods = []}
